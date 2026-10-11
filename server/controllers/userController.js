@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const Borrow = require('../models/Borrow');
 const AppError = require('../utils/AppError');
-const { removeAvatarFile } = require('../middleware/avatarUpload');
+const { removeAvatar } = require('../middleware/avatarUpload');
 const { emailForms, getPagination, paginationMeta, escapeRegex } = require('../utils/helpers');
 
 // No "role" here: this screen only manages borrower accounts, and nobody can be made an admin.
@@ -78,6 +78,6 @@ exports.deleteUser = async (req, res) => {
 
   await Borrow.deleteMany({ user: user._id });
   await user.deleteOne();
-  removeAvatarFile(user.avatarUrl);
+  await removeAvatar(user.avatarUrl);
   res.json({ message: 'Borrower deleted' });
 };

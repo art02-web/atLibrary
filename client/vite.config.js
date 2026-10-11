@@ -1,7 +1,7 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 
-// In development, /api calls (and /uploads pictures) are forwarded to the Express server.
+// In development, /api calls (including profile pictures) are forwarded to the Express server.
 // The port is read from server/.env (PORT) so both sides always agree.
 // Port 5000 is never used on a Mac: macOS AirPlay Receiver owns it and answers 403
 // (server/server.js applies the same rule).
@@ -18,10 +18,7 @@ export default defineConfig(({ mode, command }) => {
     define: command === 'serve' ? { 'import.meta.env.VITE_API_TARGET': JSON.stringify(target) } : {},
     server: {
       port: 5173,
-      proxy: {
-        '/api': target,
-        '/uploads': target, // profile pictures
-      },
+      proxy: { '/api': target },
     },
   }
 })

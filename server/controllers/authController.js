@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const AppError = require('../utils/AppError');
 const { emailForms, generateToken } = require('../utils/helpers');
-const { removeAvatarFile } = require('../middleware/avatarUpload');
+const { removeAvatar, saveAvatar } = require('../middleware/avatarUpload');
 
 const pickProfile = (body) => {
   const fields = ['firstName', 'lastName', 'studentId', 'phone', 'address'];
@@ -66,16 +66,16 @@ exports.updateMe = async (req, res) => {
 exports.uploadAvatar = async (req, res) => {
   const user = await User.findById(req.user._id);
   const old = user.avatarUrl;
-  user.avatarUrl = req.file.url;
+  user.avatarUrl = await saveAvatar(user._id, req.file);
   await user.save();
-  removeAvatarFile(old);
+  await removeAvatar(old);
   res.json({ message: 'Profile picture updated', user });
 };
 
 // DELETE /api/auth/me/avatar  (protected) - remove own profile picture
 exports.removeAvatar = async (req, res) => {
   const user = await User.findById(req.user._id);
-  removeAvatarFile(user.avatarUrl);
+  await removeAvatar(user.avatarUrl);
   user.avatarUrl = '';
   await user.save();
   res.json({ message: 'Profile picture removed', user });

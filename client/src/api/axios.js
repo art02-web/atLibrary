@@ -2,9 +2,17 @@ import axios from 'axios'
 
 export const TOKEN_KEY = 'atlibrary_token'
 
+// Where the API lives. Locally this is empty: the website calls /api and Vite forwards it to the server.
+// In production (for example Vercel) VITE_API_URL is the server's address, like https://atlibrary-api.onrender.com
+// (a trailing slash or /api at the end is fine too).
+const API_ORIGIN = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '').replace(/\/api$/, '')
+
+// Turns a server path like /api/avatars/abc into a full link when the API is on another address
+export const assetUrl = (path) => (path && path.startsWith('/') ? `${API_ORIGIN}${path}` : path)
+
 // One Axios instance for the whole app
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: `${API_ORIGIN}/api`,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -37,6 +45,12 @@ export const errorMessage = (err) => {
   const serverMessage = err?.response?.data?.message
   if (serverMessage) return serverMessage
   const url = `${err?.config?.baseURL || ''}${err?.config?.url || ''}`
+  if (API_ORIGIN) {
+    // Production: no local setup advice. Free hosts can take up to a minute to wake up.
+    if (err?.response) return `The server answered with status ${err.response.status}. Please try again.`
+    if (err?.request) return "Can't reach the atLibrary server. It may be waking up: wait a minute and try again."
+    return err?.message || 'Something went wrong'
+  }
   if (err?.response) {
     return `The atLibrary API did not answer ${url} (got status ${err.response.status} from ${API_TARGET}). ` +
       'Make sure "npm run dev" shows "atLibrary API running", and that PORT in server/.env is not 5000 ' +
