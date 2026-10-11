@@ -1,0 +1,18 @@
+{
+  "name": "atlibrary",
+  "version": "1.0.0",
+  "description": "atLibrary - Full-stack MERN Library Management System",
+  "private": true,
+  "scripts": {
+    "install-all": "npm install && npm install --prefix server && npm install --prefix client",
+    "seed": "npm run seed --prefix server",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently -n api,web -c blue,magenta \"npm run server\" \"npm run client\"",
+    "build": "npm run build --prefix client"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
